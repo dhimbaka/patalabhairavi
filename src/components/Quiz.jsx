@@ -10,6 +10,7 @@ export default function Quiz({ quiz, onBack }) {
 
   const intervalRef = useRef(null)
   const timeoutRef = useRef(null)
+  const origTitleRef = useRef(typeof document !== 'undefined' ? document.title : '');
 
   if (!quiz) return null
 
@@ -43,6 +44,22 @@ export default function Quiz({ quiz, onBack }) {
     // eslint-disable-next-line no-console
     console.log('quiz seconds:', seconds)
   }, [seconds])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') window.__quiz_seconds = seconds
+    if (typeof document !== 'undefined') document.title = `Quiz — ${seconds}s`
+  }, [seconds])
+
+  useEffect(() => {
+    if (done) {
+      if (typeof document !== 'undefined') document.title = origTitleRef.current
+      if (typeof window !== 'undefined' && window.__quiz_seconds !== undefined) delete window.__quiz_seconds
+    }
+    return () => {
+      if (typeof document !== 'undefined') document.title = origTitleRef.current
+      if (typeof window !== 'undefined' && window.__quiz_seconds !== undefined) delete window.__quiz_seconds
+    }
+  }, [done])
 
   function advance() {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
