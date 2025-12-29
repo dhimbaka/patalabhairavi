@@ -38,6 +38,12 @@ export default function Quiz({ quiz, onBack }) {
     }
   }, [seconds, answered])
 
+  useEffect(() => {
+    // debug: confirm seconds is updating
+    // eslint-disable-next-line no-console
+    console.log('quiz seconds:', seconds)
+  }, [seconds])
+
   function advance() {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null }
@@ -127,6 +133,10 @@ export default function Quiz({ quiz, onBack }) {
         {!done ? (
           <div>
             <p className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">{q.q}</p>
+
+            <div className="flex items-center justify-center my-4">
+              <div aria-live="polite" className="z-10 text-4xl sm:text-5xl font-extrabold text-blue-600 bg-white/80 dark:bg-gray-900/60 py-2 px-5 rounded-xl shadow-lg">{seconds}s</div>
+            </div>
 
             <div className="grid gap-3">
               {q.choices.map((c, i) => {
