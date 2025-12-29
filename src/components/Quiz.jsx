@@ -12,153 +12,87 @@ export default function Quiz({ quiz, onBack }) {
   const timeoutRef = useRef(null)
   const origTitleRef = useRef(typeof document !== 'undefined' ? document.title : '');
 
-  if (!quiz) return null
+  import React, { useState, useEffect } from 'react'
 
-  const q = quiz.questions[index]
+  export default function Quiz({ quiz, onBack }) {
+    const [index, setIndex] = useState(0)
+    const [score, setScore] = useState(0)
+    const [done, setDone] = useState(false)
+    const [seconds, setSeconds] = useState(30)
+    const [answered, setAnswered] = useState(false)
 
-  useEffect(() => {
-    // reset per-question state
-    setSeconds(30)
-    setAnswered(false)
-    setSelected(null)
+    if (!quiz) return null
 
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      setSeconds((s) => s - 1)
-    }, 1000)
+    const q = quiz.questions[index]
 
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    useEffect(() => {
+      // reset timer for each question
+      setSeconds(30)
+      setAnswered(false)
+      const t = setInterval(() => setSeconds((s) => s - 1), 1000)
+      return () => clearInterval(t)
+    }, [index])
+
+    useEffect(() => {
+      if (seconds <= 0 && !answered) {
+        setAnswered(true)
+        setTimeout(() => {
+          if (index + 1 < quiz.questions.length) setIndex((n) => n + 1)
+          else setDone(true)
+        }, 800)
+      }
+    }, [seconds, answered, index, quiz.questions.length])
+
+    function choose(i) {
+      if (answered) return
+      setAnswered(true)
+      if (i === q.a) setScore((s) => s + 1)
+      setTimeout(() => {
+        if (index + 1 < quiz.questions.length) setIndex((n) => n + 1)
+        else setDone(true)
+      }, 800)
     }
-  }, [index])
 
-  useEffect(() => {
-    if (seconds <= 0 && !answered) {
-      handleTimeUp()
-    }
-  }, [seconds, answered])
-
-  useEffect(() => {
-    // debug: confirm seconds is updating
-    // eslint-disable-next-line no-console
-    console.log('quiz seconds:', seconds)
-  }, [seconds])
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') window.__quiz_seconds = seconds
-    if (typeof document !== 'undefined') document.title = `Quiz — ${seconds}s`
-  }, [seconds])
-
-  useEffect(() => {
-    if (done) {
-      if (typeof document !== 'undefined') document.title = origTitleRef.current
-      if (typeof window !== 'undefined' && window.__quiz_seconds !== undefined) delete window.__quiz_seconds
-    }
-    return () => {
-      if (typeof document !== 'undefined') document.title = origTitleRef.current
-      if (typeof window !== 'undefined' && window.__quiz_seconds !== undefined) delete window.__quiz_seconds
-    }
-  }, [done])
-
-  function advance() {
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
-    if (timeoutRef.current) { clearTimeout(timeoutRef.current); timeoutRef.current = null }
-
-    if (index + 1 < quiz.questions.length) setIndex((n) => n + 1)
-    else setDone(true)
-  }
-
-  function handleTimeUp() {
-    setAnswered(true)
-    setSelected(null)
-    timeoutRef.current = setTimeout(() => {
-      advance()
-    }, 900)
-  }
-
-  function choose(i) {
-    if (answered) return
-    setAnswered(true)
-    setSelected(i)
-    if (i === q.a) setScore((s) => s + 1)
-
-    // show feedback briefly then move on
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
-    timeoutRef.current = setTimeout(() => {
-      advance()
-    }, 900)
-  }
-
-  const progressPct = Math.round(((index) / quiz.questions.length) * 100)
-  const timePct = Math.max(0, Math.round((seconds / 30) * 100))
-
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-5 sm:p-6">
-        <div className="flex items-center justify-between mb-3">
-          <button className="text-sm text-blue-600" onClick={onBack}>&larr; Back</button>
-          <div className="text-center">
-            <div className="text-xs text-gray-500">{quiz.name}</div>
-            <div className="text-2xs text-gray-400 text-[11px]">{quiz.desc}</div>
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6">
+        <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <div className="flex items-center justify-between mb-4">
+            <button className="text-sm text-blue-600" onClick={onBack}>&larr; Back</button>
+            <div className="text-sm text-gray-500">Question {index + 1} / {quiz.questions.length}</div>
           </div>
-          <div className="w-8" />
-        </div>
 
-        <div className="mb-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-medium">Question {index + 1} / {quiz.questions.length}</div>
+          {!done ? (
+            <div>
+              <h3 className="text-2xl font-bold mb-2">{quiz.name}</h3>
+              <p className="text-sm text-gray-600 mb-4">{quiz.desc}</p>
 
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 relative">
-                <svg viewBox="0 0 36 36" className="w-14 h-14">
-                  <path
-                    d="M18 2.0845
-                       a 15.9155 15.9155 0 0 1 0 31.831
-                       a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="var(--tw-prose-invert, #e5e7eb)"
-                    strokeWidth="2"
-                    className="dark:stroke-gray-700"
-                  />
-                  <path
-                    d="M18 2.0845
-                       a 15.9155 15.9155 0 0 1 0 31.831
-                       a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="#3b82f6"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeDasharray="100"
-                    style={{ strokeDashoffset: `${100 - timePct}` }}
-                    className="transition-all"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-800 dark:text-gray-100">{seconds}</div>
+              <p className="mb-4 text-lg font-semibold">{q.q}</p>
+
+              <div className="flex justify-center mb-6">
+                <div className="text-5xl font-extrabold text-blue-600">{seconds}s</div>
               </div>
-              <div className="text-xs text-gray-500">sec</div>
+
+              <div className="grid gap-3">
+                {q.choices.map((c, i) => (
+                  <button key={i} onClick={() => choose(i)} disabled={answered} className="py-3 px-4 rounded bg-blue-600 text-white hover:bg-blue-700 text-left">
+                    <div className="font-medium">{String.fromCharCode(65 + i)}. {c}</div>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-            <div className="h-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full transition-all" style={{ width: `${timePct}%` }} />
-          </div>
-          <div className="mt-2 w-full bg-gray-100 dark:bg-gray-900 h-1 rounded-full overflow-hidden">
-            <div className="h-1 bg-blue-400 rounded-full" style={{ width: `${progressPct}%` }} />
-          </div>
+          ) : (
+            <div className="text-center">
+              <h4 className="text-xl font-semibold">Quiz complete</h4>
+              <p className="mt-2">You scored {score} / {quiz.questions.length}</p>
+              <div className="mt-4 flex gap-3 justify-center">
+                <button onClick={onBack} className="px-4 py-2 rounded bg-gray-200">Return</button>
+              </div>
+            </div>
+          )}
         </div>
-
-        {!done ? (
-          <div>
-            <p className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">{q.q}</p>
-
-            <div className="flex items-center justify-center my-4">
-              <div aria-live="polite" className="z-10 text-4xl sm:text-5xl font-extrabold text-blue-600 bg-white/80 dark:bg-gray-900/60 py-2 px-5 rounded-xl shadow-lg">{seconds}s</div>
-            </div>
-
-            <div className="grid gap-3">
-              {q.choices.map((c, i) => {
-                const isCorrect = i === q.a
-                const isSelected = selected === i
+      </div>
+    )
+  }
                 let base = 'py-3 px-4 rounded-lg text-left flex items-center gap-3 text-sm font-medium'
                 let classes = base + ' transition-shadow'
                 if (!answered) classes += ' bg-white dark:bg-gray-900 shadow hover:shadow-md'
