@@ -40,6 +40,10 @@ export default function Quiz({ quiz, onBack }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      {/* Persistent overlay timer for visibility */}
+      <div aria-hidden className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        <div className="px-4 py-2 rounded-full bg-red-600 text-white font-bold shadow-lg text-lg">{seconds}s</div>
+      </div>
       <div className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <button className="text-sm text-blue-600" onClick={onBack}>&larr; Back</button>
