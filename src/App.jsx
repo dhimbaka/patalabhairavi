@@ -17,7 +17,7 @@ function App() {
         </a>
       </div>
 
-      <h1 className="text-3xl font-bold my-4">Vite + React</h1>
+      <h1 className="text-3xl font-bold my-4">patala bhairavi</h1>
 
       <div className="card p-6 bg-white/80 dark:bg-gray-800/60 rounded-md shadow-md">
         <button
