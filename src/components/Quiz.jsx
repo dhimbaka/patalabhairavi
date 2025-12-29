@@ -85,7 +85,36 @@ export default function Quiz({ quiz, onBack }) {
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
             <div className="text-sm font-medium">Question {index + 1} / {quiz.questions.length}</div>
-            <div className="text-sm font-semibold text-gray-700 dark:text-gray-200">{seconds}s</div>
+
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 relative">
+                <svg viewBox="0 0 36 36" className="w-14 h-14">
+                  <path
+                    d="M18 2.0845
+                       a 15.9155 15.9155 0 0 1 0 31.831
+                       a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="var(--tw-prose-invert, #e5e7eb)"
+                    strokeWidth="2"
+                    className="dark:stroke-gray-700"
+                  />
+                  <path
+                    d="M18 2.0845
+                       a 15.9155 15.9155 0 0 1 0 31.831
+                       a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeDasharray="100"
+                    style={{ strokeDashoffset: `${100 - timePct}` }}
+                    className="transition-all"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-800 dark:text-gray-100">{seconds}</div>
+              </div>
+              <div className="text-xs text-gray-500">sec</div>
+            </div>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
             <div className="h-2 bg-gradient-to-r from-green-400 to-blue-500 rounded-full transition-all" style={{ width: `${timePct}%` }} />
