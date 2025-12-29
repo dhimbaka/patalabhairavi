@@ -57,9 +57,7 @@ export default function Quiz({ quiz, onBack }) {
 
             <p className="mb-4 text-lg font-semibold">{q.q}</p>
 
-            <div className="flex justify-center mb-6">
-              <div className="text-5xl font-extrabold text-blue-600">{seconds}s</div>
-            </div>
+            {/* in-page timer removed (overlay kept) */}
 
             <div className="grid gap-3">
               {q.choices.map((c, i) => (
