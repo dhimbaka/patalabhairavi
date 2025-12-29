@@ -12,9 +12,10 @@ export default function Quiz({ quiz, onBack }) {
   const q = quiz.questions[index]
 
   useEffect(() => {
+    if (done) return
     setSeconds(30)
     setAnswered(false)
-    const t = setInterval(() => setSeconds((s) => s - 1), 1000)
+    const t = setInterval(() => setSeconds((s) => Math.max(0, s - 1)), 1000)
     return () => clearInterval(t)
   }, [index])
 
@@ -27,6 +28,11 @@ export default function Quiz({ quiz, onBack }) {
       }, 800)
     }
   }, [seconds, answered, index, quiz.questions.length])
+
+  // when quiz is finished, ensure timer is stopped/zeroed
+  useEffect(() => {
+    if (done) setSeconds(0)
+  }, [done])
 
   function choose(i) {
     if (answered) return
